@@ -1,4 +1,4 @@
-package com.groundzero.backend.common.entity
+package com.groundzero.backend.global.common.entity
 
 import jakarta.persistence.Column
 import jakarta.persistence.EntityListeners
@@ -10,7 +10,7 @@ import java.time.LocalDateTime
 
 @MappedSuperclass
 @EntityListeners(AuditingEntityListener::class)
-abstract class BaseEntity {
+abstract class BaseTimeEntity {
 
     @CreatedDate
     @Column(updatable = false)

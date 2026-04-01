@@ -1,8 +1,8 @@
 package com.groundzero.backend.domain.auth.controller
 
-import com.groundzero.backend.common.dto.ApiResponse
-import com.groundzero.backend.common.exception.BusinessException
-import com.groundzero.backend.common.exception.ErrorCode
+import com.groundzero.backend.global.common.ApiResponse
+import com.groundzero.backend.global.error.BusinessException
+import com.groundzero.backend.global.error.ErrorCode
 import com.groundzero.backend.domain.auth.dto.LoginRequest
 import com.groundzero.backend.domain.auth.dto.RefreshRequest
 import com.groundzero.backend.domain.auth.dto.SignupRequest
@@ -28,7 +28,7 @@ class AuthController(
     @PostMapping("/signup")
     fun signup(@Valid @RequestBody req: SignupRequest): ApiResponse<Long> {
         if (userRepository.existsByEmail(req.email)) {
-            throw BusinessException(ErrorCode.INVALID_INPUT_VALUE, "Email already exists")
+            throw BusinessException(ErrorCode.DUPLICATE_EMAIL)
         }
         val user = User(
             email = req.email,
@@ -43,10 +43,10 @@ class AuthController(
     @PostMapping("/login")
     fun login(@Valid @RequestBody req: LoginRequest): ApiResponse<TokenInfo> {
         val user = userRepository.findByEmail(req.email)
-            ?: throw BusinessException(ErrorCode.ENTITY_NOT_FOUND, "User not found")
+            ?: throw BusinessException(ErrorCode.USER_NOT_FOUND)
 
         if (!passwordEncoder.matches(req.password, user.password)) {
-            throw BusinessException(ErrorCode.INVALID_INPUT_VALUE, "Invalid password")
+            throw BusinessException(ErrorCode.INVALID_PASSWORD)
         }
 
         val authorities = listOf(SimpleGrantedAuthority(user.role.name))
@@ -63,15 +63,15 @@ class AuthController(
     @PostMapping("/refresh")
     fun refresh(@Valid @RequestBody req: RefreshRequest): ApiResponse<TokenInfo> {
         if (!jwtTokenProvider.validateToken(req.refreshToken)) {
-            throw BusinessException(ErrorCode.UNAUTHORIZED, "Invalid refresh token")
+            throw BusinessException(ErrorCode.INVALID_TOKEN)
         }
 
         val auth = jwtTokenProvider.getAuthentication(req.refreshToken)
         val user = userRepository.findByEmail(auth.name ?: "")
-            ?: throw BusinessException(ErrorCode.ENTITY_NOT_FOUND, "User not found")
+            ?: throw BusinessException(ErrorCode.USER_NOT_FOUND)
 
         if (user.refreshToken != req.refreshToken) {
-            throw BusinessException(ErrorCode.UNAUTHORIZED, "Refresh token mismatch")
+            throw BusinessException(ErrorCode.INVALID_TOKEN)
         }
 
         val newTokenInfo = jwtTokenProvider.createToken(auth)

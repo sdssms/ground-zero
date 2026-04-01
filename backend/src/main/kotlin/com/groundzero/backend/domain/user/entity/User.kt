@@ -1,6 +1,6 @@
 package com.groundzero.backend.domain.user.entity
 
-import com.groundzero.backend.common.entity.BaseEntity
+import com.groundzero.backend.global.common.entity.BaseEntity
 import jakarta.persistence.*
 
 @Entity

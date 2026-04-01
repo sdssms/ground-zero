@@ -5,6 +5,7 @@ plugins {
 	id("io.spring.dependency-management") version "1.1.7"
 	kotlin("plugin.jpa") version "2.2.21"
 	kotlin("kapt") version "2.2.21"
+	idea
 }
 
 group = "com.groundzero"
@@ -25,6 +26,7 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-security")
 	implementation("org.springframework.boot:spring-boot-starter-validation")
 	implementation("org.springframework.boot:spring-boot-starter-webmvc")
+	implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.5")
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
 	implementation("tools.jackson.module:jackson-module-kotlin")
 
@@ -65,4 +67,12 @@ allOpen {
 
 tasks.withType<Test> {
 	useJUnitPlatform()
+}
+
+idea {
+	module {
+		val kaptMain = file("build/generated/source/kapt/main")
+		sourceDirs.add(kaptMain)
+		generatedSourceDirs.add(kaptMain)
+	}
 }
